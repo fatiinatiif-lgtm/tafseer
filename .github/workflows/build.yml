@@ -1,0 +1,52 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Unpack uploaded zip files
+        run: |
+          for z in *.zip; do
+            [ -f "$z" ] && unzip -oq "$z" && echo "unpacked $z"
+          done
+          true
+
+      - name: Move PDFs into assets/books
+        run: |
+          mkdir -p assets/books
+          find . -maxdepth 2 -name '*.pdf' -not -path './assets/*' -exec mv -n {} assets/books/ \;
+          ls assets/books
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Fetch ArefRuqaa font
+        run: |
+          mkdir -p assets/fonts
+          for f in ArefRuqaa-Regular.ttf ArefRuqaa-Bold.ttf; do
+            [ -f "assets/fonts/$f" ] || curl -fsSL -o "assets/fonts/$f" \
+              "https://github.com/google/fonts/raw/main/ofl/arefruqaa/$f"
+          done
+
+      - name: Generate missing Android files
+        run: flutter create --platforms=android --org com.mirath --project-name mirath_alnobowa .
+
+      - run: flutter pub get
+      - run: flutter build apk --release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mirath-nobowa-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
