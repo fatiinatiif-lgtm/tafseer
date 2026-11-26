@@ -43,6 +43,14 @@ jobs:
       - name: Generate missing Android files
         run: flutter create --platforms=android --org com.mirath --project-name mirath_alnobowa .
 
+      - name: Apply app icons
+        run: |
+          for d in icons/mipmap-*; do
+            n=$(basename "$d")
+            mkdir -p "android/app/src/main/res/$n"
+            cp "$d/ic_launcher.png" "android/app/src/main/res/$n/ic_launcher.png"
+          done
+
       - run: flutter pub get
       - run: flutter build apk --release
 
