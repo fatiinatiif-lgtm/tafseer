@@ -41,7 +41,7 @@ jobs:
           done
 
       - name: Generate missing Android files
-        run: flutter create --platforms=android --org com.mirath --project-name mirath_alnobowa .
+        run: flutter create --platforms=android --org com.tafaseer --project-name kutub_tafaseer .
 
       - name: Apply app icons
         run: |
@@ -56,5 +56,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: mirath-nobowa-apk
+          name: kutub-tafaseer-apk
           path: build/app/outputs/flutter-apk/app-release.apk
